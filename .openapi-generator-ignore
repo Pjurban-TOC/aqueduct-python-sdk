@@ -27,3 +27,4 @@ tests/
 .github/
 pyproject.toml
 .gitignore
+git_push.sh
