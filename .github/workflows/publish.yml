@@ -1,0 +1,57 @@
+# =============================================================================
+# Publish Python SDK to PyPI via OIDC trusted publishing (PEP 740)
+# =============================================================================
+# Triggered on GitHub Release. Requires a Trusted Publisher configured on PyPI:
+#   Owner: Pjurban-TOC
+#   Repo: aqueduct-python-sdk
+#   Workflow: publish.yml
+#   Environment: pypi
+# =============================================================================
+
+name: Publish to PyPI
+
+on:
+  release:
+    types: [published]
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: Build distribution
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.x"
+      - run: pip install build
+      - run: python -m build
+      - uses: actions/upload-artifact@v4
+        with:
+          name: python-dists
+          path: dist/
+
+  publish:
+    name: Publish to PyPI
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: pypi
+      url: https://pypi.org/p/aqueduct-sdk
+    permissions:
+      id-token: write        # OIDC for PyPI + Sigstore signing
+      attestations: write    # GitHub-native SLSA Level 2 provenance
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: python-dists
+          path: dist/
+      - uses: actions/attest-build-provenance@v4.1.0
+        with:
+          subject-path: dist/*
+      - uses: pypa/gh-action-pypi-publish@release/v1
+        # PEP 740 attestations generated automatically — no username/password/token needed
