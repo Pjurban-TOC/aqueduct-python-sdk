@@ -21,3 +21,9 @@
 #docs/*.md
 # Then explicitly reverse the ignore rule for a single file:
 #!docs/README.md
+
+# Protect hand-authored files from being overwritten by openapi-generator
+tests/
+.github/
+pyproject.toml
+.gitignore
