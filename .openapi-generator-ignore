@@ -26,5 +26,7 @@
 tests/
 .github/
 pyproject.toml
+setup.py
+.openapi-generator-ignore
 .gitignore
 git_push.sh
